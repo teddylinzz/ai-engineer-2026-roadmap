@@ -4,6 +4,8 @@ An interactive, premium, single-page web application designed for aspiring AI En
 
 This portal provides a structured roadmap, interactive study checklists, curated resource directories, system-design & PyTorch interview prep, and learning widgets.
 
+🌐 **Live Demo:** [https://ai-engineer-2026-roadmap.vercel.app/](https://ai-engineer-2026-roadmap.vercel.app/)
+
 ---
 
 ## 🌟 Key Features
