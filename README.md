@@ -1,6 +1,6 @@
 # AI Engineer 2026 Preparation Portal 🚀
 
-An interactive, premium, single-page web application designed for aspiring AI Engineers targeting roles at frontier research labs (OpenAI, Anthropic, Google DeepMind) in 2026.
+An interactive, premium, single-page web application designed for aspiring AI Engineers targeting roles at frontier research labs in 2026.
 
 This portal provides a structured roadmap, interactive study checklists, curated resource directories, system-design & PyTorch interview prep, and learning widgets.
 
