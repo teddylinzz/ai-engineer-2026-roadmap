@@ -61,3 +61,9 @@ python3 -m http.server 8080
 npx http-server -p 8080
 # Open http://localhost:8080 in your browser
 ```
+
+---
+
+## 🤖 Credits
+This application was created and developed entirely by the AI model **Gemini 3.5 Flash**.
+
