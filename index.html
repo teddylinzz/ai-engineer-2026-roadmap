@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Engineer 2026 Prep Dashboard</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Ultimate interactive study plan and curriculum dashboard designed for aspiring AI Engineers targeting top AI labs including OpenAI, Anthropic, and Google AI.">
+  <meta name="author" content="Antigravity Coding Assistant">
+  
+  <!-- Font Imports -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </div>
+        <div class="brand-text">
+          <h1>AI Engineer <span>2026</span></h1>
+          <p>Prep Portal</p>
+        </div>
+      </div>
+      
+      <div class="user-target-card">
+        <div class="target-title">TARGET LABS</div>
+        <div class="labs-badges">
+          <span class="badge lab-openai">OpenAI</span>
+          <span class="badge lab-anthropic">Anthropic</span>
+          <span class="badge lab-google">Google AI</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="dashboard" id="nav-dashboard">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="roadmap" id="nav-roadmap">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Roadmap</span>
+        </button>
+        <button class="nav-item" data-view="resources" id="nav-resources">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Resources</span>
+        </button>
+        <button class="nav-item" data-view="mock" id="nav-mock">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <span>Mock Interviews</span>
+        </button>
+        <button class="nav-item" data-view="project" id="nav-project">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          <span>Project Builder</span>
+        </button>
+        <button class="nav-item" data-view="flashcards" id="nav-flashcards">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="nav-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="11" y2="17"></line></svg>
+          <span>Flashcards</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Progress Tracker -->
+      <div class="sidebar-progress">
+        <div class="progress-details">
+          <span>Overall Progress</span>
+          <span id="overall-progress-text">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="overall-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-summary">
+          <span id="completed-items-count">0</span> of <span id="total-items-count">0</span> completed
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="header-search-bar" style="visibility: hidden;">
+          <input type="text" placeholder="Search roadmap, resources...">
+        </div>
+        <div class="header-actions">
+          <div class="status-indicator">
+            <span class="status-pulse"></span>
+            <span>2026 Hiring Cycle Active</span>
+          </div>
+          <button class="btn btn-secondary reset-storage-btn" id="reset-progress-btn">Reset Progress</button>
+        </div>
+      </header>
+
+      <!-- View Wrapper -->
+      <div class="view-wrapper">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section active">
+          <div class="hero-card">
+            <div class="hero-content">
+              <h2>Master AI Engineering in 2026</h2>
+              <p>Your comprehensive preparation training plan for joining top-tier labs: OpenAI, Anthropic, and Google AI. Track your progress, study curated resources, practice mock interviews, build portfolio-ready projects, and master core concepts through active recall.</p>
+              <div class="hero-actions">
+                <button class="btn btn-primary btn-lg" onclick="window.app.navigateTo('roadmap')">Get Started / Resume</button>
+                <button class="btn btn-outline btn-lg" onclick="window.app.navigateTo('project')">Build a Project</button>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <!-- Visual element representing neural net connections (styled with CSS glow) -->
+              <div class="net-grid">
+                <div class="node node-1"></div>
+                <div class="node node-2"></div>
+                <div class="node node-3"></div>
+                <div class="node node-4"></div>
+                <svg class="line-svg">
+                  <line class="pulse-line line-1" x1="10%" y1="20%" x2="50%" y2="80%"></line>
+                  <line class="pulse-line line-2" x1="50%" y1="80%" x2="90%" y2="40%"></line>
+                  <line class="pulse-line line-3" x1="90%" y1="40%" x2="10%" y2="20%"></line>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon icon-purple">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div class="stat-info">
+                <h3>Roadmap Progress</h3>
+                <p class="stat-value" id="dash-roadmap-percent">0%</p>
+                <p class="stat-sub">Completed modules</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-blue">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              </div>
+              <div class="stat-info">
+                <h3>Read Resources</h3>
+                <p class="stat-value" id="dash-resources-count">0 / 0</p>
+                <p class="stat-sub">Materials explored</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-green">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="11" y2="17"></line></svg>
+              </div>
+              <div class="stat-info">
+                <h3>Flashcards Mastered</h3>
+                <p class="stat-value" id="dash-flashcards-count">0 / 0</p>
+                <p class="stat-sub">Active recall score</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon icon-yellow">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+              </div>
+              <div class="stat-info">
+                <h3>Mock QA Answered</h3>
+                <p class="stat-value" id="dash-mock-count">0 / 0</p>
+                <p class="stat-sub">Interview questions review</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-details-grid">
+            <div class="dash-panel lab-focus-panel">
+              <div class="panel-header">
+                <h3>Target Lab Focus Areas (2026 Profile)</h3>
+              </div>
+              <div class="panel-body">
+                <div class="lab-focus-item">
+                  <div class="lab-focus-header">
+                    <span class="badge lab-openai">OpenAI</span>
+                    <span class="focus-metric">Key: Scaling &amp; Systems</span>
+                  </div>
+                  <p>Strong emphasis on full-stack AI engineering, deep understanding of scaling laws, custom PyTorch models, GPU bottlenecks, and highly optimized serving infrastructure (Triton, vLLM). Expect systems coding and algorithmic design tests.</p>
+                </div>
+                <div class="lab-focus-item">
+                  <div class="lab-focus-header">
+                    <span class="badge lab-anthropic">Anthropic</span>
+                    <span class="focus-metric">Key: Safety &amp; Precision</span>
+                  </div>
+                  <p>Deeply values alignment theory, Constitutional AI, rigorous evaluation metrics (automated prompts, Ragas), and extreme coding precision. Expect heavy algorithmic screening and questions on model jailbreaking/guardrails.</p>
+                </div>
+                <div class="lab-focus-item">
+                  <div class="lab-focus-header">
+                    <span class="badge lab-google">Google AI</span>
+                    <span class="focus-metric">Key: Scale &amp; Multimodality</span>
+                  </div>
+                  <p>Looks for developers with experience in massive scale. Long-context management (Gemini's 2M+ token limit), multimodal processing (video/audio processing native models), TPUs, and Jax/PyTorch integration.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-panel quick-links-panel">
+              <div class="panel-header">
+                <h3>Ready to Practice?</h3>
+              </div>
+              <div class="panel-body">
+                <div class="quick-nav-boxes">
+                  <div class="quick-nav-box" onclick="window.app.navigateTo('mock')">
+                    <h4>Test Interview Prep</h4>
+                    <p>Review real questions from OpenAI and Anthropic interviews.</p>
+                    <span class="link-arrow">→</span>
+                  </div>
+                  <div class="quick-nav-box" onclick="window.app.navigateTo('project')">
+                    <h4>Generate a Capstone Project</h4>
+                    <p>Create a portfolio-grade project spec targeting LLMOps/Agents.</p>
+                    <span class="link-arrow">→</span>
+                  </div>
+                  <div class="quick-nav-box" onclick="window.app.navigateTo('flashcards')">
+                    <h4>Flashcard Active Recall</h4>
+                    <p>Quickly review 15+ hard AI concepts (KV cache, RoPE, LoRA).</p>
+                    <span class="link-arrow">→</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ROADMAP VIEW -->
+        <section id="view-roadmap" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>AI Engineer Study Roadmap</h2>
+              <p>Follow this structured learning pathway. Check off items as you complete them to track your status.</p>
+            </div>
+            <div class="progress-counter-badge" id="roadmap-progress-badge">0% Complete</div>
+          </div>
+          
+          <div class="roadmap-timeline" id="roadmap-timeline-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+
+        <!-- RESOURCES VIEW -->
+        <section id="view-resources" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>Materials &amp; Reference Directory</h2>
+              <p>Explore official cookbooks, research papers, courses, and documentation from top organizations.</p>
+            </div>
+          </div>
+
+          <div class="filters-bar">
+            <div class="search-input-wrapper">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="resource-search-input" placeholder="Search materials (e.g. Karpathy, LoRA, Claude)...">
+            </div>
+            
+            <div class="filter-groups">
+              <div class="filter-group">
+                <span class="filter-label">Difficulty:</span>
+                <select id="filter-difficulty" class="select-dropdown">
+                  <option value="all">All Difficulties</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">Category:</span>
+                <select id="filter-category" class="select-dropdown">
+                  <option value="all">All Categories</option>
+                  <option value="Foundations">Foundations</option>
+                  <option value="LLM Deep Dive">LLM Deep Dive</option>
+                  <option value="RAG">RAG</option>
+                  <option value="Agents">Agents</option>
+                  <option value="Fine-Tuning &amp; Safety">Fine-Tuning &amp; Safety</option>
+                  <option value="LLMOps &amp; serving">LLMOps &amp; serving</option>
+                  <option value="Cookbooks">Official Cookbooks</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="resources-grid" id="resources-grid-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+
+        <!-- MOCK INTERVIEWS VIEW -->
+        <section id="view-mock" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>Mock Interview Simulator</h2>
+              <p>Practice answering actual interview questions asked in technical interviews at top AI companies. Click on cards to review model answers.</p>
+            </div>
+            <div class="mock-score-board">
+              <span>Reviewed:</span>
+              <strong id="mock-reviewed-ratio">0 / 0</strong>
+            </div>
+          </div>
+
+          <div class="mock-category-filters">
+            <button class="mock-cat-btn active" data-category="all">All Questions</button>
+            <button class="mock-cat-btn" data-category="coding">Coding &amp; PyTorch</button>
+            <button class="mock-cat-btn" data-category="architecture">LLM Architecture</button>
+            <button class="mock-cat-btn" data-category="sysdesign">System Design</button>
+            <button class="mock-cat-btn" data-category="safety">Safety &amp; Alignment</button>
+          </div>
+
+          <div class="mock-questions-list" id="mock-questions-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+
+        <!-- PROJECT BUILDER VIEW -->
+        <section id="view-project" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>Dynamic Portfolio Project Builder</h2>
+              <p>Generate production-grade portfolio project specs tailored for AI Engineers in 2026. Showcase these in your resume to stand out.</p>
+            </div>
+          </div>
+
+          <div class="project-builder-panel">
+            <div class="builder-inputs">
+              <div class="input-field">
+                <label for="project-focus">Select Focus Area</label>
+                <select id="project-focus" class="select-dropdown">
+                  <option value="rag">Advanced Retrieval-Augmented Generation (RAG)</option>
+                  <option value="agents">Stateful Multi-Agent Orchestration</option>
+                  <option value="finetuning">Parameter-Efficient Fine-Tuning (PEFT) Pipeline</option>
+                  <option value="ops">High-Throughput Serving &amp; LLMOps</option>
+                </select>
+              </div>
+              <div class="input-field">
+                <label for="project-difficulty">Select Complexity</label>
+                <select id="project-difficulty" class="select-dropdown">
+                  <option value="intermediate">Intermediate (Solid Portfolio)</option>
+                  <option value="advanced">Advanced (Staff/Senior Portfolio)</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-block btn-lg" id="generate-project-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" style="margin-right: 8px;"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Generate Project Spec
+              </button>
+            </div>
+
+            <div class="builder-output">
+              <div id="project-output-placeholder" class="project-empty-state">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line><line x1="9" y1="19" x2="13" y2="19"></line><line x1="9" y1="11" x2="11" y2="11"></line></svg>
+                <h3>Generate Your Project Specification</h3>
+                <p>Choose a focus area and complexity level above, then click generate to compile a custom design layout, architecture roadmap, and core technical components for a capstone project.</p>
+              </div>
+              
+              <div id="project-output-content" class="project-spec-card" style="display: none;">
+                <!-- Dynamically populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- FLASHCARDS VIEW -->
+        <section id="view-flashcards" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>Active-Recall Flashcards</h2>
+              <p>Master core AI Engineering and LLM theory topics through active spacing repetition. Flip the card to test your understanding.</p>
+            </div>
+            <div class="flashcard-deck-score">
+              <span>Mastery:</span>
+              <strong id="flashcard-mastery-count">0 / 0</strong>
+            </div>
+          </div>
+
+          <div class="flashcards-deck-container">
+            <div class="flashcard-nav-controls">
+              <button class="btn btn-secondary btn-icon" id="fc-prev-btn" title="Previous Card">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <div class="fc-counter" id="fc-counter-text">Card 1 of 12</div>
+              <button class="btn btn-secondary btn-icon" id="fc-next-btn" title="Next Card">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+
+            <!-- The Flashcard -->
+            <div class="flashcard" id="active-flashcard">
+              <div class="flashcard-inner" id="active-flashcard-inner">
+                <!-- Front Side -->
+                <div class="flashcard-front">
+                  <span class="flashcard-tag" id="fc-tag">LLM Architecture</span>
+                  <div class="flashcard-body">
+                    <h3 id="fc-front-title">KV Cache</h3>
+                    <p id="fc-front-prompt">Click card to reveal concept definition...</p>
+                  </div>
+                  <div class="flashcard-footer">
+                    <span class="helper-text">Click anywhere to flip</span>
+                  </div>
+                </div>
+                <!-- Back Side -->
+                <div class="flashcard-back">
+                  <span class="flashcard-tag" id="fc-tag-back">Definition &amp; Significance</span>
+                  <div class="flashcard-body">
+                    <h4 id="fc-back-title">KV Cache</h4>
+                    <p id="fc-back-definition">Retrieving keys and values of previous tokens avoids redundant matrix multiplications during self-attention computation, speeding up LLM token generation dramatically at the cost of high GPU SRAM capacity.</p>
+                  </div>
+                  <div class="flashcard-footer">
+                    <span class="helper-text">Is this concept mastered?</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flashcard-action-buttons">
+              <button class="btn btn-danger" id="fc-unmastered-btn">Need Practice</button>
+              <button class="btn btn-success" id="fc-mastered-btn">Mastered Concept</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script src="app.js?v=4"></script>
+</body>
+</html>
