@@ -332,6 +332,8 @@
       this.reviewedMocks = [];
       this.flashcardStatus = {};
       this.currentFlashcardIndex = 0;
+      this.skillsRatings = { math: 3, pytorch: 3, llm: 3, rag: 3, agents: 3, infra: 3 };
+      this.targetLab = "openai";
       
       this.load();
     }
@@ -352,6 +354,12 @@
         
         const fcIdxStr = localStorage.getItem("ai_prep_flashcard_index");
         this.currentFlashcardIndex = fcIdxStr ? parseInt(fcIdxStr, 10) : 0;
+
+        const skillsStr = localStorage.getItem("ai_prep_skills_ratings");
+        this.skillsRatings = skillsStr ? JSON.parse(skillsStr) : { math: 3, pytorch: 3, llm: 3, rag: 3, agents: 3, infra: 3 };
+
+        const labStr = localStorage.getItem("ai_prep_target_lab");
+        this.targetLab = labStr || "openai";
       } catch (e) {
         console.error("Failed to load local storage state:", e);
       }
@@ -364,6 +372,8 @@
         localStorage.setItem("ai_prep_reviewed_mocks", JSON.stringify(this.reviewedMocks));
         localStorage.setItem("ai_prep_flashcard_status", JSON.stringify(this.flashcardStatus));
         localStorage.setItem("ai_prep_flashcard_index", this.currentFlashcardIndex.toString());
+        localStorage.setItem("ai_prep_skills_ratings", JSON.stringify(this.skillsRatings));
+        localStorage.setItem("ai_prep_target_lab", this.targetLab);
       } catch (e) {
         console.error("Failed to save local storage state:", e);
       }
@@ -375,6 +385,8 @@
       this.reviewedMocks = [];
       this.flashcardStatus = {};
       this.currentFlashcardIndex = 0;
+      this.skillsRatings = { math: 3, pytorch: 3, llm: 3, rag: 3, agents: 3, infra: 3 };
+      this.targetLab = "openai";
       this.save();
     }
   }
@@ -397,6 +409,7 @@
       this.bindFlashcardEvents();
       this.bindNewsEvents();
       this.bindVramEvents();
+      this.bindProfilerEvents();
       
       // Global Reset Button
       const resetBtn = document.getElementById("reset-progress-btn");
@@ -453,6 +466,7 @@
       if (viewId === "flashcards") this.renderFlashcard();
       if (viewId === "news") this.renderNews();
       if (viewId === "vram") this.renderVram();
+      if (viewId === "profiler") this.renderProfiler();
       
       this.updateGlobalProgress();
     }
@@ -465,6 +479,7 @@
       this.renderFlashcard();
       this.renderNews();
       this.renderVram();
+      this.renderProfiler();
       this.updateDashboardMetrics();
     }
 
@@ -1302,6 +1317,247 @@
             }, 300);
           }
         });
+      }
+    }
+
+    bindProfilerEvents() {
+      // Rating buttons clicks
+      document.querySelectorAll(".rating-blocks").forEach(block => {
+        const skill = block.getAttribute("data-skill");
+        block.querySelectorAll(".rate-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const val = parseInt(btn.getAttribute("data-val"), 10);
+            if (this.state.skillsRatings) {
+              this.state.skillsRatings[skill] = val;
+              this.state.save();
+              this.renderProfiler();
+            }
+          });
+        });
+      });
+
+      // Target lab select
+      const targetLabSelect = document.getElementById("profiler-target-lab");
+      if (targetLabSelect) {
+        targetLabSelect.value = this.state.targetLab;
+        targetLabSelect.addEventListener("change", (e) => {
+          this.state.targetLab = e.target.value;
+          this.state.save();
+          this.renderProfiler();
+        });
+      }
+    }
+
+    renderProfiler() {
+      // 1. Update the buttons UI state based on current rating values
+      const skills = ['math', 'pytorch', 'llm', 'rag', 'agents', 'infra'];
+      
+      skills.forEach(skill => {
+        const rating = this.state.skillsRatings[skill] || 3;
+        const block = document.querySelector(`.rating-blocks[data-skill="${skill}"]`);
+        if (block) {
+          block.querySelectorAll(".rate-btn").forEach(btn => {
+            const btnVal = parseInt(btn.getAttribute("data-val"), 10);
+            if (btnVal <= rating) {
+              btn.classList.add("active");
+            } else {
+              btn.classList.remove("active");
+            }
+          });
+        }
+      });
+
+      // 2. Generate SVG elements
+      const svg = document.getElementById("radar-svg");
+      if (!svg) return;
+      
+      // Clear svg contents
+      svg.innerHTML = "";
+
+      // Center and Radius
+      const xc = 150;
+      const yc = 150;
+      const R = 105; // Make the chart slightly larger to fit well within 300x300
+
+      // Helper function to get coordinates
+      const getCoords = (i, val) => {
+        const angle = (i * 2 * Math.PI / 6) - (Math.PI / 2);
+        const r = R * (val / 5);
+        return {
+          x: xc + r * Math.cos(angle),
+          y: yc + r * Math.sin(angle)
+        };
+      };
+
+      // Draw background concentric hexagons (levels 1 to 5)
+      for (let level = 1; level <= 5; level++) {
+        const hexPoints = [];
+        for (let i = 0; i < 6; i++) {
+          const { x, y } = getCoords(i, level);
+          hexPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        }
+        const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        polygon.setAttribute("points", hexPoints.join(" "));
+        polygon.setAttribute("class", `radar-grid-ring radar-grid-level-${level}`);
+        svg.appendChild(polygon);
+      }
+
+      // Draw axis lines from center to outer vertices (level 5)
+      for (let i = 0; i < 6; i++) {
+        const { x, y } = getCoords(i, 5);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", xc);
+        line.setAttribute("y1", yc);
+        line.setAttribute("x2", x.toFixed(1));
+        line.setAttribute("y2", y.toFixed(1));
+        line.setAttribute("class", "radar-axis-line");
+        svg.appendChild(line);
+      }
+
+      // Draw axis text labels
+      const labels = [
+        "DL Math",
+        "PyTorch",
+        "LLM Arch",
+        "RAG",
+        "Agents",
+        "Infra"
+      ];
+
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - (Math.PI / 2);
+        // Position label slightly further than max radius
+        const labelR = R + 18;
+        const lx = xc + labelR * Math.cos(angle);
+        const ly = yc + labelR * Math.sin(angle);
+        
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.textContent = labels[i];
+        text.setAttribute("x", lx.toFixed(1));
+        text.setAttribute("y", ly.toFixed(1));
+        text.setAttribute("class", "radar-axis-label");
+        
+        // Alignments based on angle
+        if (Math.abs(Math.cos(angle)) < 0.1) {
+          text.setAttribute("text-anchor", "middle");
+          if (Math.sin(angle) < 0) {
+            text.setAttribute("y", (ly - 4).toFixed(1)); // shift top label up slightly
+          } else {
+            text.setAttribute("y", (ly + 8).toFixed(1)); // shift bottom label down slightly
+          }
+        } else if (Math.cos(angle) > 0) {
+          text.setAttribute("text-anchor", "start");
+          text.setAttribute("x", (lx + 2).toFixed(1));
+        } else {
+          text.setAttribute("text-anchor", "end");
+          text.setAttribute("x", (lx - 2).toFixed(1));
+        }
+        // Vertical centering alignment helper
+        text.setAttribute("dominant-baseline", "middle");
+        svg.appendChild(text);
+      }
+
+      // 3. Draw Target Lab Polygon (if selected)
+      const targetLab = this.state.targetLab || "openai";
+      const targetProfiles = {
+        openai: { math: 5, pytorch: 4, llm: 5, rag: 3, agents: 4, infra: 5 },
+        anthropic: { math: 4, pytorch: 4, llm: 5, rag: 4, agents: 5, infra: 4 },
+        deepmind: { math: 5, pytorch: 5, llm: 5, rag: 3, agents: 3, infra: 5 }
+      };
+
+      if (targetLab !== "none" && targetProfiles[targetLab]) {
+        const targetProfile = targetProfiles[targetLab];
+        const targetPoints = [];
+        skills.forEach((skill, i) => {
+          const val = targetProfile[skill];
+          const { x, y } = getCoords(i, val);
+          targetPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        });
+        
+        const targetPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        targetPolygon.setAttribute("points", targetPoints.join(" "));
+        targetPolygon.setAttribute("class", "radar-polygon-target");
+        svg.appendChild(targetPolygon);
+      }
+
+      // 4. Draw User Profile Polygon
+      const userPoints = [];
+      skills.forEach((skill, i) => {
+        const val = this.state.skillsRatings[skill] || 3;
+        const { x, y } = getCoords(i, val);
+        userPoints.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      });
+
+      const userPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      userPolygon.setAttribute("points", userPoints.join(" "));
+      userPolygon.setAttribute("class", "radar-polygon-user");
+      svg.appendChild(userPolygon);
+
+      // Draw active dots at the vertices for the user polygon to make it look extra premium
+      skills.forEach((skill, i) => {
+        const val = this.state.skillsRatings[skill] || 3;
+        const { x, y } = getCoords(i, val);
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x.toFixed(1));
+        circle.setAttribute("cy", y.toFixed(1));
+        circle.setAttribute("r", "4");
+        circle.setAttribute("class", "radar-user-dot");
+        svg.appendChild(circle);
+      });
+
+      // 5. Compute Alignment Score and Action Plan
+      let score = 0;
+      let lowestSkill = "math";
+      let lowestVal = 6;
+
+      skills.forEach(skill => {
+        const val = this.state.skillsRatings[skill] || 3;
+        if (val < lowestVal) {
+          lowestVal = val;
+          lowestSkill = skill;
+        }
+      });
+
+      if (targetLab !== "none" && targetProfiles[targetLab]) {
+        const targetProfile = targetProfiles[targetLab];
+        // Calculate similarity score: min(userVal, targetVal) / targetVal average
+        let totalRatio = 0;
+        skills.forEach(skill => {
+          const userVal = this.state.skillsRatings[skill] || 3;
+          const targetVal = targetProfile[skill];
+          totalRatio += Math.min(userVal, targetVal) / targetVal;
+        });
+        score = Math.round((totalRatio / 6) * 100);
+      } else {
+        // User profile only: average score percentage
+        let totalVal = 0;
+        skills.forEach(skill => {
+          totalVal += this.state.skillsRatings[skill] || 3;
+        });
+        score = Math.round((totalVal / 30) * 100);
+      }
+
+      // Update alignment score UI
+      const scoreEl = document.getElementById("profiler-alignment-score");
+      if (scoreEl) {
+        scoreEl.textContent = score;
+      }
+
+      // Dynamic action plans based on lowest skill
+      const actionPlans = {
+        math: "Your primary gap is in DL Foundations & Math. We recommend reviewing **Phase 1 (Linear Algebra & Calculus)** checklist items, implementing **Backpropagation and Optimizer equations from scratch**, and reading the original transformer papers to master the attention equations.",
+        pytorch: "Your primary gap is in PyTorch Optimization. We recommend building a **custom PyTorch autograd layer**, running the **PyTorch Profiler** on standard models to identify memory bottlenecks, and reading the FSDP/DDP documentation in depth.",
+        llm: "Your primary gap is in LLM Architectures. We recommend writing a complete **Decoder-only Transformer from scratch in PyTorch** (refer to Phase 2 checklist), manually calculating KV Cache sizing, and implementing a basic **FlashAttention wrapper**.",
+        rag: "Your primary gap is in RAG & Vector Databases. We recommend working on **Phase 3 tasks**, implementing a manual **HNSW retrieval traversal script**, and setting up a hybrid search using BM25 and a cross-encoder reranker.",
+        agents: "Your primary gap is in Stateful Multi-Agent Systems. We recommend building **stateful loop workflows using LangGraph** (Phase 4), writing strict schemas for JSON tool calling protocols, and testing LLM output validations with Pydantic.",
+        infra: "Your primary gap is in Serving & GPU Infrastructure. We recommend profiling serving metrics with **vLLM PagedAttention**, running local quantization experiments (AWQ/GPTQ/GGUF) using our VRAM calculator, and testing inference scaling bottlenecks."
+      };
+
+      const actionPlanEl = document.getElementById("profiler-action-plan");
+      if (actionPlanEl) {
+        let formattedText = actionPlans[lowestSkill] || "Select ratings on the left to see your personalized recommendations.";
+        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        actionPlanEl.innerHTML = formattedText;
       }
     }
   }

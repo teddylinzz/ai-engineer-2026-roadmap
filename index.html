@@ -72,6 +72,10 @@
           <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="15" x2="23" y2="15"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="15" x2="4" y2="15"></line></svg>
           <span>VRAM Calculator</span>
         </button>
+        <button class="nav-item" data-view="profiler" id="nav-profiler">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M12 2v20"></path><path d="M2 12h20"></path></svg>
+          <span>Readiness Profiler</span>
+        </button>
       </nav>
 
       <!-- Sidebar Progress Tracker -->
@@ -615,6 +619,172 @@
                 <div class="tip-body">
                   <strong class="tip-question">Q: Explain GQA and how it impacts KV cache memory sizing in large scale LLM serving.</strong>
                   <p class="tip-answer">In standard Multi-Head Attention (MHA), KV heads equal Query heads ($H_{kv} = H_q$), causing KV cache to scale linearly and choke GPU memory at long context lengths. Grouped-Query Attention (GQA) groups query heads into key-value head clusters (e.g. 8:1 ratio in Llama 3 8B), reducing the stored KV cache size by <strong>8x</strong> while retaining near-identical model output accuracy. This allows larger batch sizes and much longer context deployment on standard hardware.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- READINESS PROFILER VIEW -->
+        <section id="view-profiler" class="view-section">
+          <div class="section-title-bar">
+            <div>
+              <h2>AI Engineering Readiness Profiler</h2>
+              <p>Evaluate your competency across key core AI engineering domains, set target hiring benchmarks, and analyze gaps.</p>
+            </div>
+          </div>
+
+          <div class="profiler-container">
+            <!-- Left Column: Self-Assessment Questionnaire -->
+            <div class="calc-card profiler-inputs">
+              <div class="panel-header" style="margin-bottom: 15px;">
+                <h3>Competency Self-Assessment</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Rate your skills from 1 (Novice) to 5 (Expert) in each core discipline.</p>
+              </div>
+
+              <!-- DL Math -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">01</span>
+                  <div>
+                    <h4>Foundations &amp; Deep Learning Math</h4>
+                    <p>Backpropagation, matrix calculus, optimization algorithms (AdamW/SGD), and attention equations.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="math">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+
+              <!-- PyTorch -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">02</span>
+                  <div>
+                    <h4>PyTorch Optimization &amp; Profiling</h4>
+                    <p>Autograd engine, mixed precision (AMP), custom autograd functions, profiling memory bottlenecks.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="pytorch">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+
+              <!-- LLM Architecture -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">03</span>
+                  <div>
+                    <h4>LLM Architectures &amp; Attention</h4>
+                    <p>Transformer blocks, KV Caching, Rotary Positional Embeddings (RoPE), and FlashAttention mechanics.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="llm">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+
+              <!-- RAG -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">04</span>
+                  <div>
+                    <h4>RAG &amp; Vector Databases</h4>
+                    <p>HNSW index traversal, chunking methodologies, hybrid retrieval, context compression, and rerankers.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="rag">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+
+              <!-- Agents -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">05</span>
+                  <div>
+                    <h4>Stateful Multi-Agent Systems</h4>
+                    <p>Graph-based agent loops, tool-calling schemas, state synchronization, and structured schema outputs.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="agents">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+
+              <!-- GPU / Infra -->
+              <div class="skill-rate-group">
+                <div class="skill-rate-info">
+                  <span class="skill-number">06</span>
+                  <div>
+                    <h4>GPU Infrastructure &amp; Serving Scale</h4>
+                    <p>vLLM PagedAttention, quantization algorithms, Tensor/Pipeline Parallelism, and hardware memory scaling.</p>
+                  </div>
+                </div>
+                <div class="rating-blocks" data-skill="infra">
+                  <button class="rate-btn" data-val="1">1</button>
+                  <button class="rate-btn" data-val="2">2</button>
+                  <button class="rate-btn" data-val="3">3</button>
+                  <button class="rate-btn" data-val="4">4</button>
+                  <button class="rate-btn" data-val="5">5</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Radar Chart and Recommendation Summary -->
+            <div class="calc-dashboard">
+              <!-- Target Benchmarks Selector -->
+              <div class="calc-card" style="padding: 16px 20px;">
+                <div class="form-group" style="gap: 6px;">
+                  <label for="profiler-target-lab" style="font-size: 0.8rem; font-weight: 700;">Compare Against Hiring Benchmark</label>
+                  <select id="profiler-target-lab" class="select-dropdown">
+                    <option value="openai">OpenAI Target Profile</option>
+                    <option value="anthropic">Anthropic Target Profile</option>
+                    <option value="deepmind">Google DeepMind Target Profile</option>
+                    <option value="none">None (User Profile Only)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- The SVG Radar Chart Card -->
+              <div class="calc-card radar-chart-card" style="align-items: center; justify-content: center; padding: 20px 24px;">
+                <svg id="radar-svg" width="300" height="300" viewBox="0 0 300 300" style="display: block;">
+                  <!-- Dynamic SVG polygon structures will be drawn here by JS -->
+                </svg>
+              </div>
+
+              <!-- Alignment Score and Action Plan -->
+              <div class="calc-card result-primary-card" style="padding: 24px;">
+                <div class="result-header">
+                  <h4>LAB ALIGNMENT MATCH</h4>
+                </div>
+                <div class="result-vram-value" style="font-size: 3.2rem; margin: 8px 0;">
+                  <span id="profiler-alignment-score">0</span> <span class="unit">%</span>
+                </div>
+                
+                <div class="hardware-recommendation" id="profiler-action-box" style="margin-top: 10px; text-align: left;">
+                  <span class="hardware-label">TAILORED STUDY ACTION PLAN</span>
+                  <p id="profiler-action-plan" style="font-size: 0.82rem; line-height: 1.5; color: var(--text-secondary);">Select ratings on the left to see your personalized recommendations.</p>
                 </div>
               </div>
             </div>
