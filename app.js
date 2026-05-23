@@ -184,6 +184,16 @@
     { category: "Foundations", front: "Gradient Clipping", back: "A safety technique that clamps gradient updates to a maximum value if their norm exceeds a threshold. Prevents extreme weight updates ('gradient explosion') that cause training runs to crash or diverge." }
   ];
 
+  const newsData = [
+    { title: "Gemini 2.5 Flash Released with 5M Context & Real-Time Multimodal Agents", category: "Models", date: "May 12, 2026", org: "Google DeepMind", desc: "Google DeepMind launches Gemini 2.5 Flash featuring a 5 million token context window, sub-50ms audio-to-audio latency, and native tool-use grounding.", link: "https://deepmind.google/technologies/gemini/" },
+    { title: "OpenAI Unveils GPT-5 \"Orion\" with Advanced Multimodal Reasoning and Code Execution", category: "Models", date: "April 28, 2026", org: "OpenAI", desc: "OpenAI announces its next-generation frontier model, GPT-5, demonstrating PhD-level scientific reasoning, native tree-of-thought search, and self-debugging runtime environments.", link: "https://openai.com/news/" },
+    { title: "Anthropic Introduces Claude 4 Opus: The Agentic Reasoning Breakthrough", category: "Models", date: "March 18, 2026", org: "Anthropic", desc: "Claude 4 Opus launches with advanced state-tracking loops, native code execution sandboxes, and highly enhanced security features aligning with their updated ASG-3 preparedness criteria.", link: "https://www.anthropic.com/news" },
+    { title: "PyTorch 2.6 Out-of-the-Box TensorParallel and Multi-GPU Graph Compilation", category: "Research & Open Source", date: "February 10, 2026", org: "PyTorch Foundation", desc: "The PyTorch Foundation releases PyTorch 2.6, offering enhanced support for 3D parallel training setups, automatic pipeline parallelism, and native integration with FP4 formats.", link: "https://pytorch.org/blog/" },
+    { title: "NVIDIA Blackwell Ultra GPUs Ship in Volume, Reaching 20 PFLOPS FP4 Compute", category: "Hardware & Infrastructure", date: "January 15, 2026", org: "NVIDIA", desc: "Volume shipments of NVIDIA B200 Ultra and GB200 systems begin globally, offering massive performance gains for large-scale mixture-of-experts (MoE) training runs.", link: "https://blogs.nvidia.com/" },
+    { title: "DeepSeek-V3 Open-Source Mixture of Experts Sets New Standard for Cost-Efficient AI", category: "Research & Open Source", date: "December 26, 2025", org: "DeepSeek", desc: "DeepSeek open-sources its V3 MoE model containing 671B parameters. Leveraging Multi-head Latent Attention (MLA) and DeepSeek-FP8 training formats, it matches GPT-4o benchmarks at a fraction of the cost.", link: "https://github.com/deepseek-ai/DeepSeek-V3" },
+    { title: "U.S. AI Safety Institute Releases Standardized Red-Teaming Benchmarks for Agentic AI", category: "Industry & Safety", date: "May 05, 2026", org: "NIST / AISI", desc: "Standardized testing suites are introduced to evaluate autonomous model agency, focusing on self-replication, recursive tool execution, and cyber-offensive capabilities.", link: "https://www.nist.gov/artificial-intelligence" }
+  ];
+
   const projectTemplates = {
     rag: {
       title: "OmniSearch: Production-Grade Hybrid RAG with Cohere Rerank & Ragas Eval",
@@ -360,6 +370,7 @@
       this.bindMockEvents();
       this.bindProjectEvents();
       this.bindFlashcardEvents();
+      this.bindNewsEvents();
       
       // Global Reset Button
       const resetBtn = document.getElementById("reset-progress-btn");
@@ -414,6 +425,7 @@
       if (viewId === "resources") this.renderResources();
       if (viewId === "mock") this.renderMocks();
       if (viewId === "flashcards") this.renderFlashcard();
+      if (viewId === "news") this.renderNews();
       
       this.updateGlobalProgress();
     }
@@ -424,6 +436,7 @@
       this.renderResources();
       this.renderMocks();
       this.renderFlashcard();
+      this.renderNews();
       this.updateDashboardMetrics();
     }
 
@@ -694,6 +707,76 @@
       if (search) search.addEventListener("input", () => this.renderResources());
       if (diff) diff.addEventListener("change", () => this.renderResources());
       if (cat) cat.addEventListener("change", () => this.renderResources());
+    }
+
+    // ========================================================
+    // AI NEWS CONTROLLER
+    // ========================================================
+    renderNews() {
+      const container = document.getElementById("news-grid-container");
+      if (!container) return;
+
+      const searchInput = document.getElementById("news-search-input");
+      const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : "";
+      const categoryVal = document.getElementById("filter-news-category")?.value || "all";
+
+      container.innerHTML = "";
+
+      const filtered = newsData.filter(item => {
+        // Text Match
+        const matchText = item.title.toLowerCase().includes(searchVal) || 
+                          item.desc.toLowerCase().includes(searchVal) ||
+                          item.org.toLowerCase().includes(searchVal);
+        // Category Match
+        const matchCategory = categoryVal === "all" || item.category === categoryVal;
+
+        return matchText && matchCategory;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="project-empty-state" style="grid-column: 1 / -1; padding: 60px 0;">
+            <h3>No News Found</h3>
+            <p>Try modifying your search keywords or resetting category filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "resource-card";
+        card.setAttribute("data-category", item.category);
+
+        card.innerHTML = `
+          <div class="resource-meta">
+            <span class="resource-tag">${item.category}</span>
+            <span class="resource-difficulty" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 500;">
+              <span class="difficulty-dot" style="background-color: var(--accent-blue);"></span>
+              ${item.date}
+            </span>
+          </div>
+          <h3>${item.title}</h3>
+          <div style="font-size: 0.75rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 12px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Source: ${item.org}</div>
+          <p style="margin-bottom: 16px; flex-grow: 1;">${item.desc}</p>
+          <div class="resource-footer" style="margin-top: auto; padding-top: 15px; border-top: 1px dashed var(--border-light); display: flex; align-items: center; justify-content: space-between;">
+            <a href="${item.link}" target="_blank" class="resource-link" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); transition: var(--transition-smooth); text-decoration: none;">
+              Read Official Announcement
+              <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" style="transition: transform var(--transition-smooth);"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    bindNewsEvents() {
+      const search = document.getElementById("news-search-input");
+      const cat = document.getElementById("filter-news-category");
+
+      if (search) search.addEventListener("input", () => this.renderNews());
+      if (cat) cat.addEventListener("change", () => this.renderNews());
     }
 
     // ========================================================

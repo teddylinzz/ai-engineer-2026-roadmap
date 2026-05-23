@@ -1119,6 +1119,21 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--accent-rose-glow);
 }
 
+.resource-card[data-category="Research & Open Source"] .resource-tag {
+  color: var(--accent-emerald);
+  background-color: var(--accent-emerald-glow);
+}
+
+.resource-card[data-category="Hardware & Infrastructure"] .resource-tag {
+  color: var(--accent-yellow);
+  background-color: var(--accent-yellow-glow);
+}
+
+.resource-card[data-category="Industry & Safety"] .resource-tag {
+  color: var(--accent-rose);
+  background-color: var(--accent-rose-glow);
+}
+
 .resource-difficulty {
   font-size: 0.72rem;
   color: var(--text-secondary);
