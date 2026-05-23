@@ -184,9 +184,9 @@ if not all_news:
     print("No news articles extracted from any feed.")
     exit(1)
 
-# Sort by pubDate descending and take top 12 items
+# Sort by pubDate descending and take top 30 items
 all_news.sort(key=get_sort_date, reverse=True)
-top_news = all_news[:12]
+top_news = all_news[:30]
 
 # Format newsData as JS array string
 js_array_str = "  const newsData = [\n"
