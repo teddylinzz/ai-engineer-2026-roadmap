@@ -12,6 +12,10 @@ rss_feeds = [
         "default_source": "OpenAI"
     },
     {
+        "url": "https://rsshub.bestblogs.dev/anthropic/news",
+        "default_source": "Anthropic"
+    },
+    {
         "url": "https://huggingface.co/blog/feed.xml",
         "default_source": "Hugging Face"
     },
