@@ -396,6 +396,7 @@
       this.bindProjectEvents();
       this.bindFlashcardEvents();
       this.bindNewsEvents();
+      this.bindVramEvents();
       
       // Global Reset Button
       const resetBtn = document.getElementById("reset-progress-btn");
@@ -451,6 +452,7 @@
       if (viewId === "mock") this.renderMocks();
       if (viewId === "flashcards") this.renderFlashcard();
       if (viewId === "news") this.renderNews();
+      if (viewId === "vram") this.renderVram();
       
       this.updateGlobalProgress();
     }
@@ -462,6 +464,7 @@
       this.renderMocks();
       this.renderFlashcard();
       this.renderNews();
+      this.renderVram();
       this.updateDashboardMetrics();
     }
 
@@ -803,6 +806,199 @@
       if (search) search.addEventListener("input", () => this.renderNews());
       if (cat) cat.addEventListener("change", () => this.renderNews());
     }
+
+    // ========================================================
+    // LLM VRAM & SERVING CALCULATOR CONTROLLER
+    // ========================================================
+    bindVramEvents() {
+      const presetSelect = document.getElementById("vram-preset");
+      const paramsSlider = document.getElementById("vram-params");
+      const paramsNum = document.getElementById("vram-params-num");
+      const quantSelect = document.getElementById("vram-quant");
+      const contextSlider = document.getElementById("vram-context");
+      const contextNum = document.getElementById("vram-context-num");
+      const batchSlider = document.getElementById("vram-batch");
+      const batchNum = document.getElementById("vram-batch-num");
+      const advancedToggle = document.getElementById("vram-advanced-toggle");
+
+      const layersInput = document.getElementById("vram-layers");
+      const headDimInput = document.getElementById("vram-head-dim");
+      const qHeadsInput = document.getElementById("vram-q-heads");
+      const kvHeadsInput = document.getElementById("vram-kv-heads");
+
+      // Setup sync between slider and numeric input
+      const syncInput = (slider, num, callback) => {
+        if (slider && num) {
+          slider.addEventListener("input", () => {
+            num.value = slider.value;
+            callback();
+          });
+          num.addEventListener("input", () => {
+            let val = parseFloat(num.value);
+            if (!isNaN(val)) {
+              slider.value = val;
+              callback();
+            }
+          });
+        }
+      };
+
+      syncInput(paramsSlider, paramsNum, () => {
+        if (presetSelect) presetSelect.value = "custom";
+        this.renderVram();
+      });
+
+      syncInput(contextSlider, contextNum, () => this.renderVram());
+      syncInput(batchSlider, batchNum, () => this.renderVram());
+
+      if (quantSelect) quantSelect.addEventListener("change", () => this.renderVram());
+
+      // Preset architecture configurations
+      const presets = {
+        "llama3-8b": { params: 8.0, layers: 32, heads: 32, kvHeads: 8, headDim: 128 },
+        "llama3-70b": { params: 70.0, layers: 80, heads: 64, kvHeads: 8, headDim: 128 },
+        "mistral-7b": { params: 7.2, layers: 32, heads: 32, kvHeads: 8, headDim: 128 },
+        "mixtral-8x7b": { params: 46.7, layers: 32, heads: 32, kvHeads: 8, headDim: 128 }
+      };
+
+      if (presetSelect) {
+        presetSelect.addEventListener("change", () => {
+          const val = presetSelect.value;
+          if (val && presets[val]) {
+            const config = presets[val];
+            if (paramsSlider) paramsSlider.value = config.params;
+            if (paramsNum) paramsNum.value = config.params;
+            if (layersInput) layersInput.value = config.layers;
+            if (headDimInput) headDimInput.value = config.headDim;
+            if (qHeadsInput) qHeadsInput.value = config.heads;
+            if (kvHeadsInput) kvHeadsInput.value = config.kvHeads;
+          }
+          this.renderVram();
+        });
+      }
+
+      // Toggle advanced panel
+      if (advancedToggle) {
+        advancedToggle.addEventListener("change", () => {
+          const panel = document.getElementById("vram-advanced-panel");
+          if (panel) {
+            if (advancedToggle.checked) {
+              panel.classList.remove("collapsed");
+              if (presetSelect) presetSelect.value = "custom";
+            } else {
+              panel.classList.add("collapsed");
+            }
+          }
+          this.renderVram();
+        });
+      }
+
+      // Listener for advanced inputs
+      const advInputs = [layersInput, headDimInput, qHeadsInput, kvHeadsInput];
+      advInputs.forEach(input => {
+        if (input) {
+          input.addEventListener("input", () => {
+            if (presetSelect) presetSelect.value = "custom";
+            this.renderVram();
+          });
+        }
+      });
+    }
+
+    renderVram() {
+      // Gather inputs
+      const params = parseFloat(document.getElementById("vram-params-num")?.value) || 8.0;
+      const quant = parseFloat(document.getElementById("vram-quant")?.value) || 16;
+      const context = parseInt(document.getElementById("vram-context-num")?.value) || 8192;
+      const batch = parseInt(document.getElementById("vram-batch-num")?.value) || 8;
+
+      const layers = parseInt(document.getElementById("vram-layers")?.value) || 32;
+      const headDim = parseInt(document.getElementById("vram-head-dim")?.value) || 128;
+      const kvHeads = parseInt(document.getElementById("vram-kv-heads")?.value) || 8;
+
+      // 1. Calculate Model Weights Size (GB)
+      // quant: 32-bit = 4 bytes, 16-bit = 2 bytes, 8-bit = 1 byte, 4-bit = 0.5 bytes
+      const bytesPerParam = quant === 32 ? 4.0 : quant === 16 ? 2.0 : quant === 8 ? 1.0 : 0.5;
+      // 1.2x overhead factor for CUDA memory buffers/context in serving frameworks like vLLM
+      const weightsGB = (params * bytesPerParam) * 1.2;
+
+      // 2. Calculate KV Cache Size (GB)
+      // Formula: 2 (Key, Value) * 2 (bytes, FP16 precision) * KV_Heads * head_dim * seq_len * layers * batch
+      // In Gigabytes (decimal GB, i.e., / 1e9)
+      const kvGB = (2.0 * 2.0 * kvHeads * headDim * context * layers * batch) / 1e9;
+
+      // 3. System/CUDA overhead
+      const systemGB = 2.0; // Flat overhead approximation
+
+      // 4. Total VRAM
+      const totalGB = weightsGB + kvGB + systemGB;
+
+      // Update UI elements
+      const totalValEl = document.getElementById("vram-total-value");
+      if (totalValEl) totalValEl.textContent = totalGB.toFixed(2);
+
+      const weightsValEl = document.getElementById("legend-weights-val");
+      if (weightsValEl) weightsValEl.textContent = `${weightsGB.toFixed(2)} GB`;
+
+      const kvValEl = document.getElementById("legend-kv-val");
+      if (kvValEl) kvValEl.textContent = `${kvGB.toFixed(2)} GB`;
+
+      // Update stacked percentage bar
+      const barWeights = document.getElementById("bar-weights");
+      const barKv = document.getElementById("bar-kv");
+      const barSys = document.getElementById("bar-sys");
+
+      const pctWeights = (weightsGB / totalGB) * 100;
+      const pctKv = (kvGB / totalGB) * 100;
+      const pctSys = (systemGB / totalGB) * 100;
+
+      if (barWeights) barWeights.style.width = `${pctWeights}%`;
+      if (barKv) barKv.style.width = `${pctKv}%`;
+      if (barSys) barSys.style.width = `${pctSys}%`;
+
+      // Hardware Recommendation logic
+      const hwTitleEl = document.getElementById("vram-hardware-title");
+      const hwDescEl = document.getElementById("vram-hardware-desc");
+      const hwBox = document.getElementById("vram-hardware-box");
+
+      let hwTitle = "";
+      let hwDesc = "";
+      let glowColor = "var(--accent-emerald)";
+
+      if (totalGB <= 22) {
+        hwTitle = "1x NVIDIA RTX 3090 / 4090 (24GB)";
+        hwDesc = "Perfect for consumer hardware or small cloud nodes. Weights and KV cache fit easily in a single 24GB card.";
+        glowColor = "rgba(16, 185, 129, 0.4)"; // emerald
+      } else if (totalGB <= 38) {
+        hwTitle = "1x NVIDIA A100 (40GB) or 2x RTX 4090 (48GB total)";
+        hwDesc = "Fits on a single professional datacenter card, or requires 2x consumer GPUs running TensorParallel (TP=2).";
+        glowColor = "rgba(59, 130, 246, 0.4)"; // blue
+      } else if (totalGB <= 76) {
+        hwTitle = "1x A100/H100 (80GB) or 4x RTX 4090 (TP=4)";
+        hwDesc = "Ideal for standard datacenter deployment. Sits comfortably inside a single high-end 80GB card with plenty of throughput headroom.";
+        glowColor = "rgba(139, 92, 246, 0.4)"; // purple
+      } else if (totalGB <= 152) {
+        hwTitle = "2x NVIDIA A100 / H100 (80GB) (TP=2)";
+        hwDesc = "Requires a multi-GPU serving engine with TensorParallel 2 to split the model weights across dual cards.";
+        glowColor = "rgba(236, 72, 153, 0.4)"; // pink
+      } else if (totalGB <= 304) {
+        hwTitle = "4x NVIDIA H100 (80GB) (TP=4)";
+        hwDesc = "High-tier serving setup. Requires an 8-card server node configured to run TP=4 to handle weights and huge active query context batching.";
+        glowColor = "rgba(239, 68, 68, 0.4)"; // red
+      } else {
+        hwTitle = "8x NVIDIA H100 (80GB) Node (TP=8)";
+        hwDesc = "Enterprise scale. Requires a full DGX server cabinet node to host the model weights and parallelize prompt evaluations.";
+        glowColor = "rgba(239, 68, 68, 0.6)"; // strong red
+      }
+
+      if (hwTitleEl) hwTitleEl.textContent = hwTitle;
+      if (hwDescEl) hwDescEl.textContent = hwDesc;
+      if (hwBox) {
+        hwBox.style.borderColor = glowColor;
+        hwBox.style.boxShadow = `0 4px 20px ${glowColor.replace("0.4", "0.15")}`;
+      }
+    }
+
 
     // ========================================================
     // MOCK INTERVIEWS Simulator CONTROLLER
