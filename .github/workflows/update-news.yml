@@ -1,0 +1,36 @@
+name: Update AI News Daily
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+permissions:
+  contents: write # Grant permission to commit and push changes
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch News and Update app.js
+        run: python update_news.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add app.js
+          if git diff --staged --quiet; then
+            echo "No news updates found today."
+          else
+            git commit -m "chore: automated daily AI news update"
+            git push
+          fi
