@@ -30,6 +30,11 @@ This portal provides a structured roadmap, interactive study checklists, curated
 - **Idea Blueprint**: Select a focus area and difficulty to generate complete project specs.
 - Includes concepts, architecture blueprints (via ASCII flowcharts), software stacks, and advanced engineering challenges.
 
+### 6. 📰 Automated AI News & Industry Pulse
+- **Live AI News Tab**: Keep up to date with the newest releases and updates from top AI researchers and entities.
+- **Multi-Source Aggregation**: Integrates feeds from **OpenAI**, **Anthropic** (via RSSHub), **Hugging Face**, **MIT Technology Review**, **Google AI**, and **Google News RSS**.
+- **Daily Cron Pipeline**: Powered by a GitHub Actions workflow that runs a Python update script (`update_news.py`) every midnight to fetch, parse, and commit the 12 latest news stories back to the repository.
+
 ---
 
 ## 🛠️ Technology Stack
